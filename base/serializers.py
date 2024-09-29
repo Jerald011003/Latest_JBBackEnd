@@ -13,24 +13,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['phone_number', 'email', 'first_name', 'last_name', 'password', 'password2', 'balance']
 
     def validate(self, data):
-        # Check if passwords match
         if data['password'] != data['password2']:
             raise serializers.ValidationError({"password": "Passwords must match."})
 
-        # Validate phone number or email (at least one must be provided)
         if not data.get('phone_number') and not data.get('email'):
             raise serializers.ValidationError({"non_field_errors": "Either phone number or email must be provided."})
 
         return data
 
     def create(self, validated_data):
-        # Extract the password and remove it from validated data
         password = validated_data.pop('password')
 
-        # Remove 'password2' from validated_data
         validated_data.pop('password2', None)
 
-        # Create user with the remaining fields
         user = CustomUser.objects.create_user(**validated_data, password=password)
         return user
 
@@ -67,7 +62,7 @@ class PasswordVerificationSerializer(serializers.Serializer):
 class UserVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False)
     phone_number = serializers.CharField(max_length=15, required=False)
-    password = serializers.CharField(write_only=True, required=True)  # Add password field
+    password = serializers.CharField(write_only=True, required=True) 
 
     def validate(self, data):
         if not data.get('email') and not data.get('phone_number'):
@@ -84,11 +79,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = ['sender', 'recipient', 'amount', 'date']
 
     def get_date(self, obj):
-        # Convert to Asia/Manila timezone
         local_tz = pytz.timezone('Asia/Manila')
         utc_date = obj.date
         local_date = utc_date.astimezone(local_tz)
-        # Format date as 'YYYY-MM-DD h:mm AM/PM'
         return local_date.strftime('%Y-%m-%d %I:%M %p')
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -105,7 +98,6 @@ class TopUpRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ['user_first_name', 'user', 'is_approved', 'created_at']
 
     def create(self, validated_data):
-        # Only `amount` will be validated and used to create a new instance
         top_up_request = TopUpRequest.objects.create(**validated_data)
         return top_up_request
 
@@ -123,7 +115,6 @@ class UpdateHeightWeightSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['height', 'weight']
 
-# Food System
 class CanteenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Canteen
@@ -139,7 +130,7 @@ class FoodCategorySerializer(serializers.ModelSerializer):
 class FoodSerializer(serializers.ModelSerializer):
     category = FoodCategorySerializer()
     canteen = serializers.SerializerMethodField()
-    vendor = serializers.StringRelatedField()  # Assuming you want to show vendor's username
+    vendor = serializers.StringRelatedField() 
     vendor_phone_number = serializers.CharField(source='vendor.phone_number', read_only=True)
 
     class Meta:
@@ -159,7 +150,7 @@ class FeaturedFoodSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     food = serializers.PrimaryKeyRelatedField(queryset=Food.objects.all())
-    user = serializers.StringRelatedField()  # Or you can use a nested user serializer
+    user = serializers.StringRelatedField()
     user_phone_number = serializers.CharField(source='user.phone_number', read_only=True)
     vendor = serializers.StringRelatedField(allow_null=True)
     vendor_phone_number = serializers.CharField(source='vendor.phone_number', read_only=True)
