@@ -88,18 +88,18 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:19006', # Expo Go on localhost
-    'http://192.168.100.107:19006', # Expo Go on local network IP
+    # 'http://<Machine-IP>:19006', # Expo Go on local network IP
     'http://localhost:8000',  # Django server on localhost
-    'http://192.168.100.107:8000',  # Django server on local network IP
-    'exp://192.168.100.107:8081',  # Expo Go on local network IP
+    # 'http://<Machine-IP>:8000',  # Django server on local network IP
+    # 'exp://<Machine-IP>:8081',  # Expo Go on local network IP
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:19006',
-    'http://192.168.100.107:19006',
+    # 'http://<Machine-IP>:19006',
     'http://localhost:8000',
-    'http://192.168.100.107:8000',
-    'exp://192.168.100.107:8081',
+    # 'http://<Machine-IP>:8000',
+    # 'exp://<Machine-IP>:8081',
 ]
 
 CSRF_COOKIE_SECURE = False  # Set to True if using HTTPS
