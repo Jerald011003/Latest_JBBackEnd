@@ -18,7 +18,6 @@ class CustomUserManager(BaseUserManager):
             if CustomUser.objects.filter(email=email).exists():
                 raise ValueError('A user with this email already exists.')
 
-        # Create user with provided fields
         user = self.model(phone_number=phone_number, email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -37,10 +36,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, blank=True, null=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Added balance field
-    height = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  # Height in meters
-    weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  # Weight in kilograms
-    bmi = models.FloatField(null=True, blank=True)  # BMI
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) 
+    height = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  
+    weight = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True) 
+    bmi = models.FloatField(null=True, blank=True)  
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -55,7 +54,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email if self.email else self.phone_number
 
     def save(self, *args, **kwargs):
-        # Calculate BMI before saving
         if self.height and self.weight:
             height_in_meters = self.height / 100
             self.bmi = round(self.weight / (height_in_meters ** 2), 2)
@@ -141,7 +139,7 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     vendor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='vendor_orders', on_delete=models.CASCADE, null=True, blank=True)
-    is_paid = models.BooleanField(default=False)  # Add this line
+    is_paid = models.BooleanField(default=False) 
 
     def __str__(self):
         return f"Order by {self.user} for {self.quantity}x {self.food.name}"
