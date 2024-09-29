@@ -18,7 +18,7 @@ from .models import Transaction, Notification, TopUpRequest, Canteen, FoodCatego
 from rest_framework.permissions import IsAdminUser
 
 
-CustomUser = get_user_model()  # Ensure CustomUser is correctly referenced
+CustomUser = get_user_model()  
 
 
 class UserRegistrationView(generics.CreateAPIView):
