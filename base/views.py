@@ -23,7 +23,7 @@ CustomUser = get_user_model()
 
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
-    permission_classes = [AllowAny]  # Allow unauthenticated access to this view
+    permission_classes = [AllowAny]  
 
 
 # @csrf_exempt
@@ -39,7 +39,6 @@ class UserLoginView(APIView):
 
             User = get_user_model()
 
-            # Find user by phone number if provided
             user = None
             if phone_number:
                 try:
@@ -69,7 +68,6 @@ class UserBalanceView(APIView):
     def get(self, request):
         user = request.user
         try:
-            # Access balance and first_name directly from the CustomUser model
             balance = user.balance
             first_name = user.first_name
 
@@ -87,7 +85,6 @@ class UserDetailsView(APIView):
     def get(self, request):
         user = request.user
         try:
-            # Access all the fields directly from the CustomUser model
             user_details = {
                 'phone_number': user.phone_number,
                 'email': user.email,
@@ -170,13 +167,11 @@ class TransferView(APIView):
             if sender.balance < amount:
                 return Response({"error": "Insufficient balance."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Update balances
             sender.balance -= amount
             recipient.balance += amount
             sender.save()
             recipient.save()
 
-            # Create transaction record
             Transaction.objects.create(sender=sender, recipient=recipient, amount=amount)
 
             return Response({"message": "Transfer successful."}, status=status.HTTP_200_OK)
@@ -198,22 +193,18 @@ class TransferBuyerAndVendorView(APIView):
                                 status=status.HTTP_403_FORBIDDEN)
 
             try:
-                # Find the buyer based on the phone number
                 buyer = CustomUser.objects.get(phone_number=recipient_phone_number)
                 if buyer.is_staff:
                     return Response({"error": "Recipient must be a buyer."}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Check if the buyer has enough balance
                 if buyer.balance < amount:
                     return Response({"error": "Buyer has insufficient balance."}, status=status.HTTP_400_BAD_REQUEST)
 
-                # Update balances
                 buyer.balance -= amount
                 vendor.balance += amount
                 buyer.save()
                 vendor.save()
 
-                # Create transaction record
                 Transaction.objects.create(sender=buyer, recipient=vendor, amount=amount)
 
                 return Response({"message": "Transfer successful."}, status=status.HTTP_200_OK)
@@ -252,7 +243,7 @@ class TopUpRequestCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)  # Associate the request with the logged-in admin
+        serializer.save(user=self.request.user)  
 
 
 class TopUpRequestDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -266,20 +257,16 @@ class TopUpRequestDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         is_approved = data.get('is_approved')
         if is_approved is not None:
-            if is_approved.lower() == 'true':  # Ensure case-insensitive comparison
+            if is_approved.lower() == 'true':  
                 top_up_request.is_approved = True
                 user = top_up_request.user
 
-                # Use a transaction to ensure consistency
                 with transaction.atomic():
-                    # Update the user's balance
                     user.balance += top_up_request.amount
                     user.save()
 
-                    # Save the top-up request
                     top_up_request.save()
 
-                # Log the success (optional for debugging)
                 print(f"Top-up approved: Added {top_up_request.amount} to {user.email}'s balance. New balance: {user.balance}")
 
             else:
@@ -311,7 +298,6 @@ class UpdateHeightWeightView(APIView):
 
         return Response({"message": "Height and weight updated successfully"}, status=status.HTTP_200_OK)
 
-# Food System
 class CanteenListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Canteen.objects.all()
@@ -359,7 +345,7 @@ class OrderListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:  # Assuming vendor users are marked as staff
+        if user.is_staff:  
             return Order.objects.filter(vendor=user).order_by('-created_at')
         return Order.objects.filter(user=user).order_by('-created_at')
 
