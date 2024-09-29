@@ -6,7 +6,7 @@ class UserAdmin(BaseUserAdmin):
     model = CustomUser
     ordering = ('-date_joined',)
     list_display = ('email', 'phone_number', 'first_name', 'last_name', 'height', 'weight', 'bmi', 'balance', 'is_staff', 'is_superuser')
-    list_editable = ('balance',)  # Make 'balance' editable in the list view
+    list_editable = ('balance',) 
     list_filter = ('is_staff', 'is_superuser')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -37,18 +37,16 @@ class TransactionAdmin(admin.ModelAdmin):
 
 class TopUpRequestAdmin(admin.ModelAdmin):
     list_display = ('id', 'user_first_name', 'user', 'amount', 'is_approved', 'created_at', 'user_balance')
-    list_editable = ('is_approved',)  # Make 'is_approved' editable in the list view
-    list_filter = ('is_approved',)    # Optional: Add filters for better searchability
-    search_fields = ('user__email',)  # Enable search by user email
+    list_editable = ('is_approved',)  
+    list_filter = ('is_approved',)    
+    search_fields = ('user__email',)  
 
     def user_balance(self, obj):
         return obj.user.balance
     user_balance.short_description = 'User Balance'
 
     def save_model(self, request, obj, form, change):
-        # Handle balance update when a top-up request is approved
         if 'is_approved' in form.changed_data and obj.is_approved:
-            # Use a transaction to ensure consistency
             from django.db import transaction
 
             with transaction.atomic():
@@ -58,8 +56,8 @@ class TopUpRequestAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # Editing existing objects
-            return ('id', 'user', 'amount', 'created_at', 'user_balance')  # Make certain fields read-only
+        if obj: 
+            return ('id', 'user', 'amount', 'created_at', 'user_balance')  
         return super().get_readonly_fields(request, obj)
 
 @admin.register(Canteen)
